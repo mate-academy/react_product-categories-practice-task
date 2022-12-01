@@ -1,11 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.scss';
 
-// import usersFromServer from './api/users';
+import classNames from 'classnames';
+import usersFromServer from './api/users';
 // import productsFromServer from './api/products';
 // import categoriesFromServer from './api/categories';
 
+// const visibleProducts = productsFromServer.map(product => ({
+//   ...product,
+//   category: categoriesFromServer
+//     .find(category => category.id === product.categoryId),
+//   user: usersFromServer.find(user => user.id === (categoriesFromServer.find(category => category.id === product.categoryId)).ownerId),
+// }));
+
 export const App: React.FC = () => {
+  const [selectedUserId, setSelectedUserId] = useState(1);
+  const [query, setQuery] = useState('');
+  // const products = visibleProducts.filter(product => product.id === selectedUserId);
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(event.target.value);
+  };
+
+  const handleInputClear = () => {
+    setQuery('');
+  };
+
   return (
     <div className="section">
       <div className="container">
@@ -19,31 +39,25 @@ export const App: React.FC = () => {
               <a
                 data-cy="FilterAllUsers"
                 href="#/"
+                className={classNames('is-active', {
+                  'is-active': selectedUserId === 0,
+                })}
+                onClick={() => setSelectedUserId(0)}
               >
                 All
               </a>
 
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 1
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-                className="is-active"
-              >
-                User 2
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 3
-              </a>
+              {usersFromServer.map(user => (
+                <a
+                  data-cy="FilterUser"
+                  href="#/"
+                  // eslint-disable-next-line max-len
+                  onClick={() => setSelectedUserId(user.id)}
+                >
+                  User_
+                  {selectedUserId}
+                </a>
+              ))}
             </p>
 
             <div className="panel-block">
@@ -53,7 +67,8 @@ export const App: React.FC = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={query}
+                  onChange={handleInputChange}
                 />
 
                 <span className="icon is-left">
@@ -66,6 +81,7 @@ export const App: React.FC = () => {
                     data-cy="ClearButton"
                     type="button"
                     className="delete"
+                    onClick={handleInputClear}
                   />
                 </span>
               </p>
