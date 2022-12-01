@@ -27,6 +27,7 @@ export const App = () => {
       owner: getOwnerById(category.ownerId),
     }));
 
+  // Throws an error
   // const modifiedProductsList: Product[] = productsFromServer
   //   .map(product => ({
   //     ...product,
