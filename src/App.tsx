@@ -1,11 +1,68 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.scss';
 
-// import usersFromServer from './api/users';
-// import productsFromServer from './api/products';
-// import categoriesFromServer from './api/categories';
+import classNames from 'classnames';
+import usersFromServer from './api/users';
+import productsFromServer from './api/products';
+import categoriesFromServer from './api/categories';
+
+import { ProductsList } from './components/ProductsList/ProductsList';
+// import { UserList } from './components/UserList/UserList';
+
+import { Product } from './Types/Product';
+import { Category } from './Types/Category';
+import { User } from './Types/User';
+
+// enum SortType {
+//   NONE,
+//   ALPABET,
+//   LENGTH,
+// }
+
+// type State = {
+//   sortType: SortType,
+//   isReversed: boolean,
+// };
+
+function getCategory(categoryId: number): Category | null {
+  const foundCategory = categoriesFromServer
+    .find(category => category.id === categoryId);
+
+  return foundCategory || null;
+}
+
+function getOwner(category: Category | null): User | null {
+  if (!category) {
+    return category;
+  }
+
+  const foundedCategory = usersFromServer
+    .find(user => user.id === category.ownerId);
+
+  return foundedCategory || null;
+}
+
+export const allProducts: Product[] = productsFromServer.map(product => ({
+  ...product,
+  category: getCategory(product.categoryId),
+  owner: getOwner(getCategory(product.categoryId)),
+}));
+
+export const allUsers: User[] = [
+  { id: 0, name: 'All', sex: '' },
+  ...usersFromServer,
+];
 
 export const App: React.FC = () => {
+  const [selectedUser, setSelectedUser] = useState('All');
+
+  let visibleProducts = allProducts;
+
+  if (selectedUser !== 'All') {
+    visibleProducts = allProducts
+      .filter(product => product.owner?.name === selectedUser);
+  }
+
   return (
     <div className="section">
       <div className="container">
@@ -16,34 +73,19 @@ export const App: React.FC = () => {
             <p className="panel-heading">Filters</p>
 
             <p className="panel-tabs has-text-weight-bold">
-              <a
-                data-cy="FilterAllUsers"
-                href="#/"
-              >
-                All
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 1
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-                className="is-active"
-              >
-                User 2
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 3
-              </a>
+              {allUsers.map((user) => (
+                <a
+                  data-cy="FilterAllUsers"
+                  href="#/"
+                  key={user.id}
+                  onClick={() => setSelectedUser(user.name)}
+                  className={classNames(
+                    { 'is-active': selectedUser === user.name },
+                  )}
+                >
+                  {user.name}
+                </a>
+              ))}
             </p>
 
             <div className="panel-block">
@@ -126,9 +168,12 @@ export const App: React.FC = () => {
         </div>
 
         <div className="box table-container">
-          <p data-cy="NoMatchingMessage">
-            No products matching selected criteria
-          </p>
+          {true
+            && (
+              <p data-cy="NoMatchingMessage">
+                No products matching selected criteria
+              </p>
+            )}
 
           <table
             data-cy="ProductTable"
@@ -186,55 +231,7 @@ export const App: React.FC = () => {
               </tr>
             </thead>
 
-            <tbody>
-              <tr data-cy="Product">
-                <td className="has-text-weight-bold" data-cy="ProductId">
-                  1
-                </td>
-
-                <td data-cy="ProductName">Milk</td>
-                <td data-cy="ProductCategory">🍺 - Drinks</td>
-
-                <td
-                  data-cy="ProductUser"
-                  className="has-text-link"
-                >
-                  Max
-                </td>
-              </tr>
-
-              <tr data-cy="Product">
-                <td className="has-text-weight-bold" data-cy="ProductId">
-                  2
-                </td>
-
-                <td data-cy="ProductName">Bread</td>
-                <td data-cy="ProductCategory">🍞 - Grocery</td>
-
-                <td
-                  data-cy="ProductUser"
-                  className="has-text-danger"
-                >
-                  Anna
-                </td>
-              </tr>
-
-              <tr data-cy="Product">
-                <td className="has-text-weight-bold" data-cy="ProductId">
-                  3
-                </td>
-
-                <td data-cy="ProductName">iPhone</td>
-                <td data-cy="ProductCategory">💻 - Electronics</td>
-
-                <td
-                  data-cy="ProductUser"
-                  className="has-text-link"
-                >
-                  Roma
-                </td>
-              </tr>
-            </tbody>
+            <ProductsList products={visibleProducts} />
           </table>
         </div>
       </div>
