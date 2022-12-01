@@ -1,11 +1,93 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.scss';
+import classNames from 'classnames';
 
-// import usersFromServer from './api/users';
-// import productsFromServer from './api/products';
-// import categoriesFromServer from './api/categories';
+import usersFromServer from './api/users';
+import productsFromServer from './api/products';
+import categoriesFromServer from './api/categories';
 
-export const App: React.FC = () => {
+interface Categories {
+  id: number,
+  title: string,
+  icon: string,
+  ownerId: number,
+}
+
+interface Products {
+  id: number,
+  name: string,
+  categoryId: number,
+}
+
+interface Users {
+  id: number,
+  name: string,
+  sex: string,
+}
+
+interface Props {
+  categories: Categories[],
+  products: Products[],
+  users: Users[],
+  selectedUserId: number,
+  onUserSelected: (user: Users) => void,
+}
+
+// export function sortByType(
+//   names: string || number,
+// ) {
+//   const visibleNames = [...names];
+
+//   visibleNames.sort((a, b) => {
+//     if (typeof a === 'number') {
+//       return a - b;
+//     } else {
+//       return a.localeCompare(b)
+//     }
+//   })
+// }
+
+export const App: React.FC<Props> = () => {
+  const [query, setQuery] = useState('');
+
+  const includesQuery = (productName: string) => (
+    productName.toLowerCase().includes(query.toLowerCase())
+  );
+
+  const visibleProducts = productsFromServer.filter(product => (
+    includesQuery(product.name)
+  ));
+
+  // const [names, setNames] = useState(false);
+
+  // const changedNames = sortByType(
+  //   productsFromServer,
+  // );
+
+  function getCategory(productCategoryId: number): Categories | null {
+    const foundCategory = categoriesFromServer.find(category => (
+      category.id === productCategoryId));
+
+    return foundCategory || null;
+  }
+
+  function getUser(ownerId: number): Categories | null {
+    const foundUser = usersFromServer.find(user => user.id === ownerId);
+
+    return foundUser || null;
+  }
+
+  // const [selectedUser, setSelectedUser] = useState(0);
+  // const onUserSelected = (user: Users) => setSelectedUser(user);
+
+  // const selectedUser = usersFromServer.find(user => user.id === selectedUser.id);
+
+  // const handleClickUser = (user: Users) => {
+  //   if (user.id !== selectedUser.id) {
+  //     onUserSelected(user);
+  //   }
+  // };
+
   return (
     <div className="section">
       <div className="container">
@@ -22,6 +104,22 @@ export const App: React.FC = () => {
               >
                 All
               </a>
+
+              {/* {usersFromServer.map(user => (
+                <a
+                  data-cy="FilterAllUsers"
+                  href="#/"
+                  key={user.id}
+                  className={classNames(
+                    {
+                      'is-active': user.id === selectedUser.id,
+                    },
+                  )}
+                  onClick={() => handleClickUser(user)}
+                >
+                  {user.name}
+                </a>
+              ))} */}
 
               <a
                 data-cy="FilterUser"
@@ -53,7 +151,8 @@ export const App: React.FC = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
                 />
 
                 <span className="icon is-left">
@@ -66,6 +165,7 @@ export const App: React.FC = () => {
                     data-cy="ClearButton"
                     type="button"
                     className="delete"
+                    onClick={() => setQuery('')}
                   />
                 </span>
               </p>
@@ -187,53 +287,30 @@ export const App: React.FC = () => {
             </thead>
 
             <tbody>
-              <tr data-cy="Product">
-                <td className="has-text-weight-bold" data-cy="ProductId">
-                  1
-                </td>
+              {visibleProducts.map(product => (
+                <tr data-cy="Product" key={product.id}>
+                  <td className="has-text-weight-bold" data-cy="ProductId">
+                    {product.id}
+                  </td>
 
-                <td data-cy="ProductName">Milk</td>
-                <td data-cy="ProductCategory">🍺 - Drinks</td>
+                  <td data-cy="ProductName">{product.name}</td>
+                  <td data-cy="ProductCategory">
+                    {`${getCategory(product.categoryId).icon} - ${getCategory(product.categoryId).title}`}
+                  </td>
 
-                <td
-                  data-cy="ProductUser"
-                  className="has-text-link"
-                >
-                  Max
-                </td>
-              </tr>
-
-              <tr data-cy="Product">
-                <td className="has-text-weight-bold" data-cy="ProductId">
-                  2
-                </td>
-
-                <td data-cy="ProductName">Bread</td>
-                <td data-cy="ProductCategory">🍞 - Grocery</td>
-
-                <td
-                  data-cy="ProductUser"
-                  className="has-text-danger"
-                >
-                  Anna
-                </td>
-              </tr>
-
-              <tr data-cy="Product">
-                <td className="has-text-weight-bold" data-cy="ProductId">
-                  3
-                </td>
-
-                <td data-cy="ProductName">iPhone</td>
-                <td data-cy="ProductCategory">💻 - Electronics</td>
-
-                <td
-                  data-cy="ProductUser"
-                  className="has-text-link"
-                >
-                  Roma
-                </td>
-              </tr>
+                  <td
+                    data-cy="ProductUser"
+                    className={classNames(
+                      {
+                        'has-text-link': getUser(getCategory(product.categoryId).ownerId).sex === 'm',
+                        'has-text-danger': getUser(getCategory(product.categoryId).ownerId).sex === 'f',
+                      },
+                    )}
+                  >
+                    {getUser(getCategory(product.categoryId).ownerId).name}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
