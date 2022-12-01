@@ -1,11 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.scss';
+import classNames from 'classnames';
 
-// import usersFromServer from './api/users';
-// import productsFromServer from './api/products';
-// import categoriesFromServer from './api/categories';
+import usersFromServer from './api/users';
+import productsFromServer from './api/products';
+import categoriesFromServer from './api/categories';
+
+interface Product {
+  id: number,
+  name: string,
+  categoryId: number,
+}
 
 export const App: React.FC = () => {
+  const findProductCategories = (product: Product) => (
+    categoriesFromServer.find(category => category.id === product.categoryId)
+      || categoriesFromServer[0]
+  );
+
+  const findOwner = (product: Product) => (
+    usersFromServer.find(user => (
+      user.id === findProductCategories(product).ownerId))
+      || usersFromServer[0]
+  );
+
+  const [selectedUserId, setUserId] = useState(0);
+  const [query, setQuery] = useState('');
+
+  const textIncluding = (text: string) => (
+    text.toLocaleLowerCase().includes(query.toLocaleLowerCase())
+  );
+
+  const visibleProducts = productsFromServer.filter(product => (
+    textIncluding(product.name)
+  ));
+
+  const isHidden: boolean = query.length === 0;
+
   return (
     <div className="section">
       <div className="container">
@@ -19,6 +50,10 @@ export const App: React.FC = () => {
               <a
                 data-cy="FilterAllUsers"
                 href="#/"
+                onClick={() => setUserId(0)}
+                className={classNames({
+                  'is-active': selectedUserId === 0,
+                })}
               >
                 All
               </a>
@@ -26,6 +61,10 @@ export const App: React.FC = () => {
               <a
                 data-cy="FilterUser"
                 href="#/"
+                onClick={() => setUserId(1)}
+                className={classNames({
+                  'is-active': selectedUserId === 1,
+                })}
               >
                 User 1
               </a>
@@ -33,7 +72,10 @@ export const App: React.FC = () => {
               <a
                 data-cy="FilterUser"
                 href="#/"
-                className="is-active"
+                onClick={() => setUserId(2)}
+                className={classNames({
+                  'is-active': selectedUserId === 2,
+                })}
               >
                 User 2
               </a>
@@ -41,6 +83,10 @@ export const App: React.FC = () => {
               <a
                 data-cy="FilterUser"
                 href="#/"
+                onClick={() => setUserId(3)}
+                className={classNames({
+                  'is-active': selectedUserId === 3,
+                })}
               >
                 User 3
               </a>
@@ -53,21 +99,27 @@ export const App: React.FC = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={query}
+                  onChange={(event => {
+                    setQuery(event.target.value);
+                  })}
                 />
 
                 <span className="icon is-left">
                   <i className="fas fa-search" aria-hidden="true" />
                 </span>
 
-                <span className="icon is-right">
-                  {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                  <button
-                    data-cy="ClearButton"
-                    type="button"
-                    className="delete"
-                  />
-                </span>
+                {!isHidden && (
+                  <span className="icon is-right">
+                    {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
+                    <button
+                      data-cy="ClearButton"
+                      type="button"
+                      className="delete"
+                      onClick={() => setQuery('')}
+                    />
+                  </span>
+                )}
               </p>
             </div>
 
@@ -126,9 +178,11 @@ export const App: React.FC = () => {
         </div>
 
         <div className="box table-container">
-          <p data-cy="NoMatchingMessage">
-            No products matching selected criteria
-          </p>
+          {!(visibleProducts.length > 0) && (
+            <p data-cy="NoMatchingMessage">
+              No products matching selected criteria
+            </p>
+          )}
 
           <table
             data-cy="ProductTable"
@@ -187,53 +241,29 @@ export const App: React.FC = () => {
             </thead>
 
             <tbody>
-              <tr data-cy="Product">
-                <td className="has-text-weight-bold" data-cy="ProductId">
-                  1
-                </td>
+              {visibleProducts.map(product => (
+                findOwner(product).id === selectedUserId && (
+                  <tr data-cy="Product">
+                    <td className="has-text-weight-bold" data-cy="ProductId">
+                      {product.id}
+                    </td>
 
-                <td data-cy="ProductName">Milk</td>
-                <td data-cy="ProductCategory">🍺 - Drinks</td>
+                    <td data-cy="ProductName">{product.name}</td>
+                    <td data-cy="ProductCategory">{`${findProductCategories(product).icon} - ${findProductCategories(product).title}`}</td>
 
-                <td
-                  data-cy="ProductUser"
-                  className="has-text-link"
-                >
-                  Max
-                </td>
-              </tr>
-
-              <tr data-cy="Product">
-                <td className="has-text-weight-bold" data-cy="ProductId">
-                  2
-                </td>
-
-                <td data-cy="ProductName">Bread</td>
-                <td data-cy="ProductCategory">🍞 - Grocery</td>
-
-                <td
-                  data-cy="ProductUser"
-                  className="has-text-danger"
-                >
-                  Anna
-                </td>
-              </tr>
-
-              <tr data-cy="Product">
-                <td className="has-text-weight-bold" data-cy="ProductId">
-                  3
-                </td>
-
-                <td data-cy="ProductName">iPhone</td>
-                <td data-cy="ProductCategory">💻 - Electronics</td>
-
-                <td
-                  data-cy="ProductUser"
-                  className="has-text-link"
-                >
-                  Roma
-                </td>
-              </tr>
+                    <td
+                      data-cy="ProductUser"
+                      className={classNames(
+                        findOwner(product).sex === 'm'
+                          ? 'has-text-link'
+                          : 'has-text-danger',
+                      )}
+                    >
+                      {`${findOwner(product).name}`}
+                    </td>
+                  </tr>
+                )
+              ))}
             </tbody>
           </table>
         </div>
