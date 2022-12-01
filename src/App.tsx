@@ -1,14 +1,14 @@
 import './App.scss';
 
 import usersFromServer from './api/users';
-import productsFromServer from './api/products';
+// import productsFromServer from './api/products';
 import categoriesFromServer from './api/categories';
 
 import { PanelTab } from './components/PanelTab';
 import { CategoriesList } from './components/CategoriesList';
 import { Category } from './types/Category';
-import { Table } from './components/Table';
-import { Product } from './types/Product';
+// import { Table } from './components/Table';
+// import { Product } from './types/Product';
 
 export function getOwnerById(ownerId: number) {
   return usersFromServer.find(user => user.id === ownerId) || null;
@@ -27,16 +27,14 @@ export const App = () => {
       owner: getOwnerById(category.ownerId),
     }));
 
-  const modifiedProductsList: Product[] = productsFromServer
-    .map(product => ({
-      ...product,
-      category: {
-        ...getCategoryById(product.categoryId),
-        owner: getCategoryById(product.categoryId) !== null
-          ? getOwnerById(getCategoryById(product.categoryId).ownerId)
-          : null,
-      },
-    }));
+  // const modifiedProductsList: Product[] = productsFromServer
+  //   .map(product => ({
+  //     ...product,
+  //     category: {
+  //       ...getCategoryById(product.categoryId),
+  //       owner: getOwnerById(getCategoryById(product.categoryId).ownerId),
+  //     },
+  //   }));
 
   return (
     <div className="section">
@@ -94,7 +92,7 @@ export const App = () => {
             No products matching selected criteria
           </p>
 
-          <Table products={modifiedProductsList} />
+          {/* <Table products={modifiedProductsList} /> */}
         </div>
       </div>
     </div>
