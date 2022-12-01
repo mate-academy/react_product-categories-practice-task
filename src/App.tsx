@@ -1,20 +1,53 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.scss';
+import classNames from 'classnames';
+import usersFromServer from './api/users';
+import productsFromServer from './api/products';
+import categoriesFromServer from './api/categories';
 
-// import usersFromServer from './api/users';
-// import productsFromServer from './api/products';
-// import categoriesFromServer from './api/categories';
+enum FilterType {
+  'Grocery',
+  'Drinks',
+  'Fruits',
+  'Electronics',
+  'Clothes',
+}
+
+const filterByName = (str: string) => {
+  return productsFromServer.filter(
+    product => product.name.toLowerCase().includes(str.toLowerCase()),
+  );
+};
+
+const filterByCategory = (filterType: any) => {
+  switch (filterType) {
+    case FilterType.Grocery:
+      return productsFromServer.filter(product => product.categoryId === 1);
+    case FilterType.Drinks:
+      return productsFromServer.filter(product => product.categoryId === 2);
+    case FilterType.Fruits:
+      return productsFromServer.filter(product => product.categoryId === 3);
+    case FilterType.Electronics:
+      return productsFromServer.filter(product => product.categoryId === 4);
+    case FilterType.Clothes:
+      return productsFromServer.filter(product => product.categoryId === 5);
+    default:
+      return 0;
+  }
+};
 
 export const App: React.FC = () => {
+  const [query, setQuery] = useState<string>('');
+  const [filterType, setFilterType] = useState(false);
+  const visibleProd = filterByName(query);
+
   return (
     <div className="section">
       <div className="container">
         <h1 className="title">Product Categories</h1>
-
         <div className="block">
           <nav className="panel">
             <p className="panel-heading">Filters</p>
-
             <p className="panel-tabs has-text-weight-bold">
               <a
                 data-cy="FilterAllUsers"
@@ -22,30 +55,32 @@ export const App: React.FC = () => {
               >
                 All
               </a>
-
               <a
                 data-cy="FilterUser"
                 href="#/"
               >
-                User 1
+                Roma
               </a>
-
               <a
                 data-cy="FilterUser"
                 href="#/"
                 className="is-active"
               >
-                User 2
+                Anna
               </a>
-
               <a
                 data-cy="FilterUser"
                 href="#/"
               >
-                User 3
+                Max
+              </a>
+              <a
+                data-cy="FilterUser"
+                href="#/"
+              >
+                John
               </a>
             </p>
-
             <div className="panel-block">
               <p className="control has-icons-left has-icons-right">
                 <input
@@ -53,13 +88,12 @@ export const App: React.FC = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
                 />
-
                 <span className="icon is-left">
                   <i className="fas fa-search" aria-hidden="true" />
                 </span>
-
                 <span className="icon is-right">
                   {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
                   <button
@@ -70,7 +104,6 @@ export const App: React.FC = () => {
                 </span>
               </p>
             </div>
-
             <div className="panel-block is-flex-wrap-wrap">
               <a
                 href="#/"
@@ -79,57 +112,58 @@ export const App: React.FC = () => {
               >
                 All
               </a>
-
               <a
                 data-cy="Category"
                 className="button mr-2 my-1 is-info"
                 href="#/"
               >
-                Category 1
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 2
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 3
+                Grosery
               </a>
               <a
                 data-cy="Category"
                 className="button mr-2 my-1"
                 href="#/"
               >
-                Category 4
+                Drinks
+              </a>
+              <a
+                data-cy="Category"
+                className="button mr-2 my-1 is-info"
+                href="#/"
+              >
+                Friuts
+              </a>
+              <a
+                data-cy="Category"
+                className="button mr-2 my-1"
+                href="#/"
+              >
+                Electronics
+              </a>
+              <a
+                data-cy="Category"
+                className="button mr-2 my-1"
+                href="#/"
+              >
+                Clothes
               </a>
             </div>
-
             <div className="panel-block">
               <a
                 data-cy="ResetAllButton"
                 href="#/"
                 className="button is-link is-outlined is-fullwidth"
-
+                onClick={() => setQuery('')}
               >
                 Reset all filters
               </a>
             </div>
           </nav>
         </div>
-
         <div className="box table-container">
           <p data-cy="NoMatchingMessage">
             No products matching selected criteria
           </p>
-
           <table
             data-cy="ProductTable"
             className="table is-striped is-narrow is-fullwidth"
@@ -139,7 +173,6 @@ export const App: React.FC = () => {
                 <th>
                   <span className="is-flex is-flex-wrap-nowrap">
                     ID
-
                     <a href="#/">
                       <span className="icon">
                         <i data-cy="SortIcon" className="fas fa-sort" />
@@ -147,11 +180,9 @@ export const App: React.FC = () => {
                     </a>
                   </span>
                 </th>
-
                 <th>
                   <span className="is-flex is-flex-wrap-nowrap">
                     Product
-
                     <a href="#/">
                       <span className="icon">
                         <i data-cy="SortIcon" className="fas fa-sort-down" />
@@ -159,11 +190,9 @@ export const App: React.FC = () => {
                     </a>
                   </span>
                 </th>
-
                 <th>
                   <span className="is-flex is-flex-wrap-nowrap">
                     Category
-
                     <a href="#/">
                       <span className="icon">
                         <i data-cy="SortIcon" className="fas fa-sort-up" />
@@ -171,11 +200,9 @@ export const App: React.FC = () => {
                     </a>
                   </span>
                 </th>
-
                 <th>
                   <span className="is-flex is-flex-wrap-nowrap">
                     User
-
                     <a href="#/">
                       <span className="icon">
                         <i data-cy="SortIcon" className="fas fa-sort" />
@@ -185,55 +212,40 @@ export const App: React.FC = () => {
                 </th>
               </tr>
             </thead>
-
             <tbody>
-              <tr data-cy="Product">
-                <td className="has-text-weight-bold" data-cy="ProductId">
-                  1
-                </td>
-
-                <td data-cy="ProductName">Milk</td>
-                <td data-cy="ProductCategory">🍺 - Drinks</td>
-
-                <td
-                  data-cy="ProductUser"
-                  className="has-text-link"
-                >
-                  Max
-                </td>
-              </tr>
-
-              <tr data-cy="Product">
-                <td className="has-text-weight-bold" data-cy="ProductId">
-                  2
-                </td>
-
-                <td data-cy="ProductName">Bread</td>
-                <td data-cy="ProductCategory">🍞 - Grocery</td>
-
-                <td
-                  data-cy="ProductUser"
-                  className="has-text-danger"
-                >
-                  Anna
-                </td>
-              </tr>
-
-              <tr data-cy="Product">
-                <td className="has-text-weight-bold" data-cy="ProductId">
-                  3
-                </td>
-
-                <td data-cy="ProductName">iPhone</td>
-                <td data-cy="ProductCategory">💻 - Electronics</td>
-
-                <td
-                  data-cy="ProductUser"
-                  className="has-text-link"
-                >
-                  Roma
-                </td>
-              </tr>
+              {visibleProd.map(product => (
+                <tr data-cy="Product">
+                  <td className="has-text-weight-bold" data-cy="ProductId">
+                    {product.id}
+                  </td>
+                  <td data-cy="ProductName">{product.name}</td>
+                  <td data-cy="ProductCategory">
+                    {categoriesFromServer
+                      .find(category => category.id
+                        === product.categoryId)?.icon}
+                    {' - '}
+                    {categoriesFromServer
+                      .find(category => category.id
+                        === product.categoryId)?.title}
+                  </td>
+                  <td
+                    data-cy="ProductUser"
+                    className={classNames(
+                      'has-text-link',
+                      {
+                        'has-text-danger': usersFromServer.find(user => user.id
+                          === categoriesFromServer.find(category => category.id
+                            === product.categoryId)?.ownerId).sex === 'f',
+                      },
+                    )}
+                  >
+                    {usersFromServer.find(user => user.id
+                      === categoriesFromServer
+                        .find(category => category.id
+                          === product.categoryId)?.ownerId)?.name}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
