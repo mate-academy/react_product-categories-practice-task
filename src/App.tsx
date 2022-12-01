@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import './App.scss';
 
 import usersFromServer from './api/users';
-import productsFromServer from './api/products';
 import categoriesFromServer from './api/categories';
+import productsFromServer from './api/products';
 
 export const App: React.FC = () => {
   const [filterBy, setFilterBy] = useState('');
