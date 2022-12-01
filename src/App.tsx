@@ -252,7 +252,7 @@ export const App: React.FC = () => {
                     className={classNames(
                       'has-text-link',
                       {
-                        'has-text-danger': 
+                        'has-text-danger':
                           getSex(product.category?.ownerId) === 'f',
                       },
                     )}
