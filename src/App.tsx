@@ -109,7 +109,7 @@ export const App: React.FC = () => {
                       && user.id === selectedUser?.id,
                   })}
                 >
-                  {`User ${user.id}`}
+                  {user.name}
                 </a>
               ))}
             </p>
@@ -213,7 +213,7 @@ export const App: React.FC = () => {
 
                       <a href="#/">
                         <span className="icon">
-                          <i data-cy="SortIcon" className="fas fa-sort-down" />
+                          <i data-cy="SortIcon" className="fas fa-sort" />
                         </span>
                       </a>
                     </span>
@@ -225,7 +225,7 @@ export const App: React.FC = () => {
 
                       <a href="#/">
                         <span className="icon">
-                          <i data-cy="SortIcon" className="fas fa-sort-up" />
+                          <i data-cy="SortIcon" className="fas fa-sort" />
                         </span>
                       </a>
                     </span>
