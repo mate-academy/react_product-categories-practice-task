@@ -1,9 +1,44 @@
 import React from 'react';
 import './App.scss';
 
-// import usersFromServer from './api/users';
-// import productsFromServer from './api/products';
-// import categoriesFromServer from './api/categories';
+import usersFromServer from './api/users';
+import productsFromServer from './api/products';
+import categoriesFromServer from './api/categories';
+
+interface Product {
+  id: number,
+  name: string,
+  categoryId: number,
+}
+
+interface Category {
+  id: number,
+  title: string,
+  icon: string,
+  ownerId: number,
+}
+
+// interface User {
+//   id: number,
+//   name: string,
+//   sex: string,
+// }
+
+// function getUser(userId: number): User | null {
+//   const foundUser = usersFromServer.find(user => user.id === userId);
+
+//   // if there is no user with a given userId
+//   return foundUser || null;
+// }
+
+export const products: Product[] = productsFromServer.map(product => ({
+  ...product,
+  // user: getUser(userId),
+}));
+
+export const categories: Category[] = categoriesFromServer.map(category => ({
+  ...category,
+}));
 
 export const App: React.FC = () => {
   return (
@@ -187,7 +222,25 @@ export const App: React.FC = () => {
             </thead>
 
             <tbody>
-              <tr data-cy="Product">
+              {products.map(product => (
+                <tr data-cy="Product">
+                  <td className="has-text-weight-bold" data-cy="ProductId">
+                    {product.id}
+                  </td>
+
+                  <td data-cy="ProductName">{product.name}</td>
+
+                  <td data-cy="ProductCategory">{`🍺 - ${category.id}`}</td>
+
+                  <td
+                    data-cy="ProductUser"
+                    className="has-text-link"
+                  >
+                    Max
+                  </td>
+                </tr>
+              ))}
+              {/* <tr data-cy="Product">
                 <td className="has-text-weight-bold" data-cy="ProductId">
                   1
                 </td>
@@ -233,7 +286,7 @@ export const App: React.FC = () => {
                 >
                   Roma
                 </td>
-              </tr>
+              </tr> */}
             </tbody>
           </table>
         </div>
