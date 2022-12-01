@@ -25,7 +25,7 @@ const productsWithCategories = productsFromServer.map(
   }),
 );
 
-let products: Product[] = productsWithCategories.map(
+const products: Product[] = productsWithCategories.map(
   product => ({
     ...product,
     user: getUserById(product.category?.ownerId),
