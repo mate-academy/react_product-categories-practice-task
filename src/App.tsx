@@ -1,11 +1,68 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.scss';
 
-// import usersFromServer from './api/users';
-// import productsFromServer from './api/products';
-// import categoriesFromServer from './api/categories';
+import usersFromServer from './api/users';
+import productsFromServer from './api/products';
+import categoriesFromServer from './api/categories';
+
+interface User {
+  id: number,
+  name: string,
+  sex: string,
+}
+export const userInfo: React.FC<User> = (user) => {
+  const { name } = user;
+
+  return (
+    <td
+      data-cy="ProductUser"
+      className="has-text-danger"
+    >
+      {name}
+    </td>
+  );
+};
+
+interface Categories {
+  id: number,
+  title: string,
+  icon: string,
+  ovnerId: number,
+}
+
+export const categoriesInfo: React.FC<Categories> = (category) => {
+  const { title, icon } = category;
+
+  return (
+    <td data-cy="ProductCategory">{`${icon} - ${title}`}</td>
+  );
+};
+
+interface Products {
+  name: string,
+  icon: string,
+  id: number,
+  caregoryId: number,
+}
+
+export const productsInfo: React.FC<Products> = (product) => {
+  const { name, id } = product;
+
+  return (
+    <>
+      <td className="has-text-weight-bold" data-cy="ProductId">
+        {id}
+      </td>
+
+      <td data-cy="ProductName">{name}</td>
+    </>
+  );
+};
 
 export const App: React.FC = () => {
+  const [query, setQuery] = useState('');
+  const [isInputEmpty, setTsInputEmpty] = useState(true);
+
   return (
     <div className="section">
       <div className="container">
@@ -23,27 +80,15 @@ export const App: React.FC = () => {
                 All
               </a>
 
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 1
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-                className="is-active"
-              >
-                User 2
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 3
-              </a>
+              {usersFromServer.map(user => (
+                <a
+                  data-cy="FilterUser"
+                  href="#/"
+                  key={user.id}
+                >
+                  { user.name }
+                </a>
+              ))}
             </p>
 
             <div className="panel-block">
@@ -53,12 +98,18 @@ export const App: React.FC = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={query}
+                  onChange={(event) => {
+                    setTsInputEmpty(false);
+                    setQuery(event.target.value);
+                  }}
                 />
 
-                <span className="icon is-left">
-                  <i className="fas fa-search" aria-hidden="true" />
-                </span>
+                {isInputEmpty && !query && (
+                  <span className="icon is-left">
+                    <i className="fas fa-search" aria-hidden="true" />
+                  </span>
+                )}
 
                 <span className="icon is-right">
                   {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
@@ -80,36 +131,16 @@ export const App: React.FC = () => {
                 All
               </a>
 
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 1
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 2
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 3
-              </a>
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 4
-              </a>
+              {categoriesFromServer.map(({ id, title }) => (
+                <a
+                  href="#/"
+                  data-cy="AllCategories"
+                  className="button is-success mr-6 is-outlined"
+                  key={id}
+                >
+                  {title}
+                </a>
+              ))}
             </div>
 
             <div className="panel-block">
@@ -187,52 +218,37 @@ export const App: React.FC = () => {
             </thead>
 
             <tbody>
-              <tr data-cy="Product">
-                <td className="has-text-weight-bold" data-cy="ProductId">
-                  1
-                </td>
+              <tr>
+                {
+                  productsFromServer.map(produt => (
+                    <>
+                      <td className="has-text-weight-bold" data-cy="ProductId">
+                        {produt.id}
+                      </td>
 
-                <td data-cy="ProductName">Milk</td>
-                <td data-cy="ProductCategory">🍺 - Drinks</td>
-
-                <td
-                  data-cy="ProductUser"
-                  className="has-text-link"
-                >
-                  Max
-                </td>
-              </tr>
-
-              <tr data-cy="Product">
-                <td className="has-text-weight-bold" data-cy="ProductId">
-                  2
-                </td>
-
-                <td data-cy="ProductName">Bread</td>
-                <td data-cy="ProductCategory">🍞 - Grocery</td>
-
-                <td
-                  data-cy="ProductUser"
-                  className="has-text-danger"
-                >
-                  Anna
-                </td>
-              </tr>
-
-              <tr data-cy="Product">
-                <td className="has-text-weight-bold" data-cy="ProductId">
-                  3
-                </td>
-
-                <td data-cy="ProductName">iPhone</td>
-                <td data-cy="ProductCategory">💻 - Electronics</td>
-
-                <td
-                  data-cy="ProductUser"
-                  className="has-text-link"
-                >
-                  Roma
-                </td>
+                      <td data-cy="ProductName">{produt.name}</td>
+                    </>
+                  ))
+                }
+                {
+                  categoriesFromServer.map(category => (
+                    <>
+                      <td data-cy="ProductCategory">{`${category.icon} - ${category.title}`}</td>
+                    </>
+                  ))
+                }
+                {
+                  usersFromServer.map(user => (
+                    <>
+                      <td
+                        data-cy="ProductUser"
+                        className="has-text-link"
+                      >
+                        {user.name}
+                      </td>
+                    </>
+                  ))
+                }
               </tr>
             </tbody>
           </table>
