@@ -70,7 +70,7 @@ export const App: React.FC = () => {
                 data-cy="FilterAllUsers"
                 href="#/"
                 className={classNames({
-                  'is-activ': selectedUserId === null,
+                  'is-active': selectedUserId === null,
                 })}
                 onClick={() => setSelectedUserId(null)}
               >
@@ -83,7 +83,7 @@ export const App: React.FC = () => {
                   data-cy="FilterUser"
                   href="#/"
                   className={classNames({
-                    'is-activ': user.id === selectedUserId,
+                    'is-active': user.id === selectedUserId,
                   })}
                   onClick={() => setSelectedUserId(user.id)}
                 >
@@ -134,7 +134,10 @@ export const App: React.FC = () => {
                 <a
                   key={category.id}
                   data-cy="Category"
-                  className="button mr-2 my-1 is-info"
+                  className={classNames('button mr-2 my-1', {
+                    'is-info':
+                    selectedCategoryId === category.id,
+                  })}
                   href="#/"
                   onClick={() => setSelectedCategoryId(category.id)}
                 >
