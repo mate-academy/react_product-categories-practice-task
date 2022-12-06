@@ -1,11 +1,55 @@
 import React from 'react';
 import './App.scss';
 
-// import usersFromServer from './api/users';
-// import productsFromServer from './api/products';
-// import categoriesFromServer from './api/categories';
+import classNames from 'classnames';
+import usersFromServer from './api/users';
+import productsFromServer from './api/products';
+import categoriesFromServer from './api/categories';
+
+// type Product = {
+//   id: number,
+//   name: string,
+//   categoryId: number,
+// };
+
+// type User = {
+//   id: number,
+//   name: string,
+//   sex: 'm' | 'f',
+// };
+
+// type Categorie = {
+//   id: number,
+//   title: string,
+//   icon: symbol,
+//   ownerId: number,
+// };
+
+function findUserById(userId: number) {
+  return (usersFromServer.find(user => userId === user.id));
+}
+
+const catsAndUsers = categoriesFromServer.map((cat) => ({
+  ...cat,
+  user: findUserById(cat.ownerId),
+}));
+
+function findCatById(catId: number) {
+  return (catsAndUsers.find(cat => catId === cat.id));
+}
+
+const prodsAndCatsAndUsers = productsFromServer.map((prod) => ({
+  ...prod,
+  category: findCatById(prod.categoryId),
+}));
 
 export const App: React.FC = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // const [user, setUser] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // const filteredList = prodsAndCatsAndUsers
+  //   .filter(prod => prod.category?.user?.name === ' ');
+
   return (
     <div className="section">
       <div className="container">
@@ -22,28 +66,15 @@ export const App: React.FC = () => {
               >
                 All
               </a>
+              {usersFromServer.map(user1 => (
+                <a
+                  data-cy="FilterUser"
+                  href="#/"
+                >
+                  {user1.name}
+                </a>
+              ))}
 
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 1
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-                className="is-active"
-              >
-                User 2
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 3
-              </a>
             </p>
 
             <div className="panel-block">
@@ -187,7 +218,35 @@ export const App: React.FC = () => {
             </thead>
 
             <tbody>
-              <tr data-cy="Product">
+
+              {prodsAndCatsAndUsers.map(product => (
+                <tr data-cy="Product">
+                  <td className="has-text-weight-bold" data-cy="ProductId">
+                    {product.id}
+                  </td>
+
+                  <td data-cy="ProductName">{product.name}</td>
+                  <td data-cy="ProductCategory">
+                    {product.category?.icon}
+                    &nbsp;-&nbsp;
+                    {product.category?.title}
+                  </td>
+
+                  <td
+                    data-cy="ProductUser"
+                    className={classNames(
+                      {
+                        'has-text-link': product.category?.user?.sex === 'm',
+                        'has-text-danger': product.category?.user?.sex === 'f',
+                      },
+                    )}
+                  >
+                    {product.category?.user?.name}
+                  </td>
+                </tr>
+              ))}
+
+              {/* <tr data-cy="Product">
                 <td className="has-text-weight-bold" data-cy="ProductId">
                   1
                 </td>
@@ -233,7 +292,7 @@ export const App: React.FC = () => {
                 >
                   Roma
                 </td>
-              </tr>
+              </tr> */}
             </tbody>
           </table>
         </div>
