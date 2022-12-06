@@ -1,11 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.scss';
+import classNames from 'classnames';
 
-// import usersFromServer from './api/users';
-// import productsFromServer from './api/products';
-// import categoriesFromServer from './api/categories';
+import usersFromServer from './api/users';
+import productsFromServer from './api/products';
+import categoriesFromServer from './api/categories';
+
+type Category = {
+  id: number;
+  title: string;
+  icon: string;
+  ownerId: number;
+}
+
+const findCategory = (productId) => {
+  return categoriesFromServer.filter(category => category.id === productId);
+};
+
+const findName = (ownerId) => {
+  return usersFromServer.filter(user => user.id === ownerId);
+};
 
 export const App: React.FC = () => {
+  const [checkedOwner, setCheckedOwner] = useState('');
+
+  const visibleProduct = productsFromServer.filter(product => (
+    findName(findCategory(product
+      .categoryId)[0].ownerId)[0].name === checkedOwner
+  ));
+
+  // console.log(s);
+
+  // const handleClickOwner = (event) => {
+  //   console.log(user);
+  // }
+
   return (
     <div className="section">
       <div className="container">
@@ -18,32 +47,25 @@ export const App: React.FC = () => {
             <p className="panel-tabs has-text-weight-bold">
               <a
                 data-cy="FilterAllUsers"
+                key="5"
                 href="#/"
+                className="is-active"
               >
                 All
               </a>
 
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 1
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-                className="is-active"
-              >
-                User 2
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 3
-              </a>
+              {usersFromServer.map(user => (
+                <a
+                  data-cy="FilterUser"
+                  href="#/"
+                  key={user.id}
+                  value={user.name}
+                  onClick={() => setCheckedOwner(user.name)}
+                  //checkedOwner={user.id}
+                >
+                  {user.name}
+                </a>
+              ))}
             </p>
 
             <div className="panel-block">
@@ -187,13 +209,44 @@ export const App: React.FC = () => {
             </thead>
 
             <tbody>
-              <tr data-cy="Product">
+              {visibleProduct.map(product => (
+                <tr data-cy="Product">
+                  <td className="has-text-weight-bold" data-cy="ProductId">
+                    {product.id}
+                  </td>
+
+                  <td data-cy="ProductName">{product.name}</td>
+                  <td data-cy="ProductCategory">
+                    {`${findCategory(product.categoryId)[0].icon} - ${findCategory(product.categoryId)[0].title}`}
+                  </td>
+
+                  <td
+                    data-cy="ProductUser"
+                    className={classNames('has-text-link',
+                      {
+                        'has-text-danger':
+                        findName(findCategory(product.categoryId)[0]
+                          .ownerId)[0].sex === 'f',
+                      })}
+                  >
+
+                    {/* {findName(1)} */}
+                    {
+                      findName(findCategory(product.categoryId)[0]
+                        .ownerId)[0].name
+                    }
+                  </td>
+                </tr>
+              ))}
+              {/* <tr data-cy="Product">
                 <td className="has-text-weight-bold" data-cy="ProductId">
                   1
                 </td>
 
                 <td data-cy="ProductName">Milk</td>
-                <td data-cy="ProductCategory">🍺 - Drinks</td>
+                <td data-cy="ProductCategory">
+                  🍺 - Drinks
+                </td>
 
                 <td
                   data-cy="ProductUser"
@@ -233,7 +286,7 @@ export const App: React.FC = () => {
                 >
                   Roma
                 </td>
-              </tr>
+              </tr> */}
             </tbody>
           </table>
         </div>
